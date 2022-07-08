@@ -200,7 +200,7 @@ public class WorldGuardPlugin extends JavaPlugin {
         //Kontrola verze překladu WorldGuardu
 
             try {
-                String buildurl = "http://jenkins.valleycube.cz/job/WorldGuard-CZ-preklad/ws/build.number";
+                String buildurl = "http://jenkins.valleycube.cz/job/WorldGuard-CZ-preklad-master/ws/build.number";
                 URL url = new URL(buildurl);
                 URLConnection con = url.openConnection();
                 Pattern p = Pattern.compile("text/html;\\s+charset=([^\\s]+)\\s*");
@@ -237,32 +237,49 @@ public class WorldGuardPlugin extends JavaPlugin {
                     int buildn = Integer.parseInt(gbuild);
 
                     if (buildn == buildnumber) {
-                        getLogger().info("Nainstalovaná verze WorldGuardu je nejnovější!");
+                        getLogger().info("Nainstalovaná verze překladu WorldGuardu je nejnovější!");
                         getLogger().info("Aktuální verze: WorldGuard_"
-                                + WorldGuard.getVersion() + "-překlad_PREv"
+                                + WorldGuard.getVersion() + "-překlad_v"
                                     + WorldGuard.getTransVersion() + "-B" + buildnumber);
                         } else if (buildn > buildnumber){
-                        getLogger().warning("Nová verze WorldGuard CZ překlad je dostupná na http://jenkins.valleycube.cz/job/WorldGuard-CZ-preklad/");
+                        getLogger().warning("Nová verze překladu WorldGuard CZ je dostupná na http://jenkins.valleycube.cz/job/WorldGuard-CZ-preklad-master/");
+                        getLogger().info("Aktuální verze: WorldGuard_"
+                                + WorldGuard.getVersion() + "-překlad_v"
+                                + WorldGuard.getTransVersion() + "-B" + buildnumber);
                         getLogger().warning("Nová verze: WorldGuard_"
-                                + WorldGuard.getLatestVersion() + "-překlad_PREv"
+                                + WorldGuard.getLatestVersion() + "-překlad_v"
                                     + WorldGuard.getLatestTransVersion() + "-B" + buildn);
                     } else {
-                        getLogger().severe("Nesprávná verze - " + buildnumber + " místo " + buildn + "! Koukni na http://jenkins.valleycube.cz/job/WorldGuard-CZ-preklad/");
+                        getLogger().severe("Nesprávná verze překladu WorldGuardu - " + buildnumber + " místo " + buildn + "! Koukni na http://jenkins.valleycube.cz/job/WorldGuard-CZ-preklad-master/");
                     }
                 } catch (Exception e) {
                     getLogger().warning("Chyba při načítání updateru!");
+                    getLogger().warning("Kód pro podporu: transVer01");
                     e.printStackTrace();
                 }
             } catch (Exception e) {
                 getLogger().warning("Chyba při načítání celého updateru!");
+                getLogger().warning("Kód pro podporu: transVer02");
             }
 
         int pluginId = 15431; // <-- Replace with the id of your plugin!
         final Metrics stats = new Metrics(this, pluginId);
-
-        if (platform.getGlobalStateManager().extraStats) {
-            setupCustomCharts(stats);
-        }
+        stats.addCustomChart(new DrilldownPie("translate_version", () -> {
+            Map<String, Map<String, Integer>> map = new HashMap<>();
+            String transVersion = WorldGuard.getTransVersion();
+            Map<String, Integer> entry = new HashMap<>();
+            entry.put(transVersion, 1);
+            if (transVersion.startsWith("0.5.1")) {
+                map.put("Překlad WG v0.5.1-beta", entry);
+            } else if (transVersion.startsWith("1.0")) {
+                map.put("Překlad WG v1.0", entry);
+            } else if (transVersion.startsWith("1.1")) {
+                map.put("Překlad WG v1.1", entry);
+            } else {
+                map.put("Jiná", entry);
+            }
+            return map;
+        }));
     }
 
     private void setupCustomCharts(Metrics metrics) {
@@ -334,7 +351,7 @@ public class WorldGuardPlugin extends JavaPlugin {
                 throw t;
             }
         } catch (CommandPermissionsException e) {
-            sender.sendMessage(ChatColor.RED + "Nemáš dostatená práva.");
+            sender.sendMessage(ChatColor.RED + "Nemáš dostatečná práva.");
         } catch (MissingNestedCommandException e) {
             sender.sendMessage(ChatColor.RED + e.getUsage());
         } catch (CommandUsageException e) {
