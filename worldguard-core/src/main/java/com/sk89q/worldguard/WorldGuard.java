@@ -36,13 +36,16 @@ import com.sk89q.worldguard.util.profile.cache.HashMapCache;
 import com.sk89q.worldguard.util.profile.cache.ProfileCache;
 import com.sk89q.worldguard.util.profile.cache.SQLiteCache;
 import com.sk89q.worldguard.util.profile.resolver.ProfileService;
+import org.yaml.snakeyaml.Yaml;
 
 import java.io.*;
 import java.net.URL;
 import java.net.URLConnection;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -76,6 +79,7 @@ public final class WorldGuard {
     public static WorldGuard getInstance() {
         return instance;
     }
+    public static HashMap<String, String> messageData = new HashMap<String, String>();
 
     private WorldGuard() {
     }
@@ -86,6 +90,33 @@ public final class WorldGuard {
 
         File cacheDir = new File(getPlatform().getConfigDir().toFile(), "cache");
         cacheDir.mkdirs();
+
+        File messagesDir = new File(getPlatform().getConfigDir().toFile(), "messages");
+        if (!messagesDir.exists()) {
+            try {
+                messagesDir.mkdirs();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+
+        Yaml yaml = new Yaml();
+        InputStream inputStream = this.getClass().getClassLoader().getResourceAsStream("messages/messages.yml");
+        File file = new File(String.valueOf(this.getClass().getResource("messages/messages.yml")));
+        if (!file.exists()){
+            try {
+                file.createNewFile();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        Map<String, Object>yamlMap = yaml.load(inputStream);
+        yamlMap.put("version", getTransVersion());
+        setMessage("deny-message-prefix", "&c&lStop!");
+
+        for(String mess : yamlMap.keySet()) {
+            messageData.put(mess, (String) yamlMap.get(mess));
+        }
 
         try {
             profileCache = new SQLiteCache(new File(cacheDir, "profiles.sqlite"));
@@ -329,5 +360,13 @@ public final class WorldGuard {
 
         return latestVersion;
 
+    }
+    private void setMessage(String name, Object message) {
+        Yaml yaml = new Yaml();
+        InputStream inputStream = this.getClass().getClassLoader().getResourceAsStream("messages/messages.yml");
+        Map<String, Object>yamlMap = yaml.load(inputStream);
+        if (!yamlMap.containsValue(name)) {
+            yamlMap.put(name, message);
+        }
     }
 }

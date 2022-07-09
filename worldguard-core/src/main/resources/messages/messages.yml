@@ -1,0 +1,5 @@
+#Toto neměň!!!
+version: #willbechanged
+
+#Hlášky:
+deny-message-prefix: "&c&lStop!"

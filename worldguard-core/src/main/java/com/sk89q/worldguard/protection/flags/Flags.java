@@ -30,11 +30,14 @@ import com.sk89q.worldedit.world.weather.WeatherType;
 import com.sk89q.worldguard.WorldGuard;
 import com.sk89q.worldguard.protection.flags.registry.FlagConflictException;
 import com.sk89q.worldguard.protection.flags.registry.FlagRegistry;
+import com.sk89q.worldguard.config.ConfigurationManager.*;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.function.Consumer;
+
+import static com.sk89q.worldguard.WorldGuard.messageData;
 
 /**
  * The flags that are used in WorldGuard.
@@ -216,7 +219,7 @@ public final class Flags {
      */
     @Deprecated
     public static final StringFlag DENY_MESSAGE = register(new StringFlag("deny-message",
-            LegacyComponentSerializer.INSTANCE.serialize(TextComponent.of("").append(TextComponent.of("Stop!",
+            LegacyComponentSerializer.INSTANCE.serialize(TextComponent.of("").append(TextComponent.of(messageData.get("deny-message-prefix"),
                     TextColor.RED, Sets.newHashSet(TextDecoration.BOLD)))
                     .append(TextComponent.of(" Tady není povoleno %what%.", TextColor.GRAY)))));
     /**

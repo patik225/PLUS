@@ -57,6 +57,8 @@ import org.bukkit.OfflinePlayer;
 import org.bukkit.World;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
+import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -97,6 +99,21 @@ public class WorldGuardPlugin extends JavaPlugin {
                 return player.hasPermission(perm);
             }
         };
+    }
+
+    public static HashMap<String, String> messageData = new HashMap<String, String>();
+
+    private void setMessage(String name, String message) {
+        File f = new File(getDataFolder()+File.separator+"messages.yml");
+        FileConfiguration config = YamlConfiguration.loadConfiguration(f);
+        if (!config.isSet(name)) {
+            config.set(name, message);
+            try {
+                config.save(f);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
     }
 
     /**
@@ -195,6 +212,24 @@ public class WorldGuardPlugin extends JavaPlugin {
         final Metrics metrics = new Metrics(this, BSTATS_PLUGIN_ID); // bStats plugin id
         if (platform.getGlobalStateManager().extraStats) {
             setupCustomCharts(metrics);
+        }
+
+        // File messages.yml
+
+        File f = new File(getDataFolder()+File.separator+"messages.yml");
+        if (!f.exists()) {
+            try {
+                f.createNewFile();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
+        setMessage("messagePrefix", "&c&lStop!");
+
+        FileConfiguration config = YamlConfiguration.loadConfiguration(f);
+        for (String message : config.getConfigurationSection("").getKeys(false)) {
+            messageData.put(message, config.getString(message));
         }
 
         //Kontrola verze překladu WorldGuardu
