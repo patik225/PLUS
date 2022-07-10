@@ -277,7 +277,7 @@ public final class WorldGuard {
      * Verze překladu :)
      */
     public static String getTransVersion() {
-        transVersion = "1.1";
+        transVersion = "0.1-beta";
         return transVersion;
     }
     public static String getLatestTransVersion() {
